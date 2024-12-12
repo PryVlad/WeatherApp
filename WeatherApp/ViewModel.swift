@@ -11,19 +11,6 @@ import OpenMeteoSdk
 class WeatherWM: ObservableObject{
     @Published var week: [OneDay] = []
     
-    init() {
-        let latitude = "59.334591"
-        let longitude = "18.063240"
-        let url = "https://api.open-meteo.com/v1/forecast?latitude="+latitude+"&longitude="+longitude+"&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation&daily=temperature_2m_min,temperature_2m_max,weather_code&timezone=auto&format=flatbuffers"
-        Task {
-            let data = try await Self.getData(url)
-            week = Self.convertDataToWeek(data)
-            largeInfo = LargeInformation(temperature: Int(data.current.temperature2m),
-                                         location: "Stockholm",
-                                         weatherCode: Int(data.current.weatherCode))
-        }
-    }
-    
     var largeInfo: LargeInformation = LargeInformation() {
         didSet {
             objectWillChange.send()
@@ -31,7 +18,7 @@ class WeatherWM: ObservableObject{
     }
     
     var firstGradient: Color {
-        switch Self.codeToImg(largeInfo.weatherCode) {
+        switch Self.convertCodeToSysStr(largeInfo.weatherCode) {
         case "cloud.fog.fill":
                 .fog
         case "snow":
@@ -42,6 +29,21 @@ class WeatherWM: ObservableObject{
                 .gray
         default:
                 .blue
+        }
+    }
+    
+    init() {
+        updateData(latitude: "59.334591", longitude: "18.063240", location: "Stockholm")
+    }
+    
+    private func updateData(latitude: String, longitude: String, location: String) {
+        let url =         "https://api.open-meteo.com/v1/forecast?latitude="+latitude+"&longitude="+longitude+"&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation&daily=temperature_2m_min,temperature_2m_max,weather_code&timezone=auto&format=flatbuffers"
+        Task {
+            let data = try await Self.getData(url)
+            week = Self.convertDataToWeek(data)
+            largeInfo = LargeInformation(temperature: Int(data.current.temperature2m),
+                                         location: location,
+                                         weatherCode: Int(data.current.weatherCode))
         }
     }
     
@@ -110,7 +112,7 @@ class WeatherWM: ObservableObject{
         return weekArray
     }
     
-    static func codeToImg(_ i: Int) -> String {
+    static func convertCodeToSysStr(_ i: Int) -> String {
         switch i {
         case 0:
             return "sun.max.fill"

@@ -35,7 +35,7 @@ struct ContentView: View {
             model.printLocation(name: weather.largeInfo.location,
                                 size: Const.bigTextSize)
             .padding(.vertical)
-            model.printImgIcon(model.codeToImg(weather.largeInfo.weatherCode),
+            model.printImgIcon(model.convertCodeToSysStr(weather.largeInfo.weatherCode),
                                size: Const.bigIconSize)
             .padding(.vertical)
             model.printTemperature(weather.largeInfo.temperature,
@@ -66,7 +66,7 @@ struct ContentView: View {
             Text(one.dayOfWeek)
                 .font(.system(size: Const.bigTextSize/2, weight: .semibold))
                 .foregroundStyle(.white)
-            model.printImgIcon(model.codeToImg(one.weatherCode), size: Const.bigIconSize/3)
+            model.printImgIcon(model.convertCodeToSysStr(one.weatherCode), size: Const.bigIconSize/3)
             model.printTemperature(one.temperature, fontSize: Const.bigTmpSize/2)
         }
         .padding(.horizontal, Const.spacing)
